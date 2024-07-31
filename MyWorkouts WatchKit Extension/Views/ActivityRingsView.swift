@@ -35,3 +35,7 @@ struct ActivityRingsView: WKInterfaceObjectRepresentable {
 
     }
 }
+
+#Preview {
+  ActivityRingsView(healthStore: HKHealthStore())
+}
