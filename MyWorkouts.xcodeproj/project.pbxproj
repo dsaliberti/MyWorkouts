@@ -104,7 +104,9 @@
 				2165A03224FF992354618B48 /* Configuration */,
 				F133DF038AAB08EBB1FDBBE0 /* LICENSE */,
 			);
+			indentWidth = 4;
 			sourceTree = "<group>";
+			tabWidth = 4;
 		};
 		E0CF939E2661A76300F7CED2 /* Products */ = {
 			isa = PBXGroup;

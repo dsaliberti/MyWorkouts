@@ -25,9 +25,7 @@ struct SessionPagingView: View {
       
       MetricsView()
         .tag(Tab.metrics)
-        .frame(width: .infinity, height: .infinity)
-        .contentShape(Rectangle())
-        .background(.red.opacity(0.2))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
       
       
       NowPlayingView()

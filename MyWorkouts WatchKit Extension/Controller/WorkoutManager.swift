@@ -48,8 +48,10 @@ class WorkoutManager: NSObject, ObservableObject {
         builder?.delegate = self
 
         // Set the workout builder's data source.
-        builder?.dataSource = HKLiveWorkoutDataSource(healthStore: healthStore,
-                                                     workoutConfiguration: configuration)
+        builder?.dataSource = HKLiveWorkoutDataSource(
+            healthStore: healthStore,
+            workoutConfiguration: configuration
+        )
 
         // Start the workout session and begin data collection.
         let startDate = Date()
@@ -72,6 +74,7 @@ class WorkoutManager: NSObject, ObservableObject {
             HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!,
             HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)!,
             HKQuantityType.quantityType(forIdentifier: .distanceCycling)!,
+            HKQuantityType.quantityType(forIdentifier: .stepCount)!,
             HKObjectType.activitySummaryType()
         ]
 
@@ -112,10 +115,15 @@ class WorkoutManager: NSObject, ObservableObject {
     @Published var heartRate: Double = 0
     @Published var activeEnergy: Double = 0
     @Published var distance: Double = 0
+    @Published var steps: Int = 0
     @Published var workout: HKWorkout?
+
+    var workoutStartedAt: Date? = nil
 
     func updateForStatistics(_ statistics: HKStatistics?) {
         guard let statistics = statistics else { return }
+
+        queryStepCount()
 
         DispatchQueue.main.async {
             switch statistics.quantityType {
@@ -135,6 +143,28 @@ class WorkoutManager: NSObject, ObservableObject {
         }
     }
 
+    func queryStepCount() {
+        let stepCountType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
+        let startDate = workoutStartedAt ?? Date()
+        let endDate = Date()
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictEndDate)
+        
+        let query = HKStatisticsQuery(quantityType: stepCountType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, result, error in
+            if let error = error {
+                print("Error fetching step count: \(error.localizedDescription)")
+                return
+            }
+            
+            if let result = result, let sum = result.sumQuantity() {
+                let stepCount = sum.doubleValue(for: HKUnit.count())
+                DispatchQueue.main.async {
+                    self.steps = Int(stepCount)
+                }
+            }
+        }
+        HKHealthStore().execute(query)
+    }
+    
     func resetWorkout() {
         selectedWorkout = nil
         builder = nil
@@ -151,6 +181,11 @@ class WorkoutManager: NSObject, ObservableObject {
 extension WorkoutManager: HKWorkoutSessionDelegate {
     func workoutSession(_ workoutSession: HKWorkoutSession, didChangeTo toState: HKWorkoutSessionState,
                         from fromState: HKWorkoutSessionState, date: Date) {
+        
+        if fromState == .notStarted && toState == .running {
+            workoutStartedAt = Date()
+        }
+        
         DispatchQueue.main.async {
             self.running = toState == .running
         }
