@@ -1,17 +1,15 @@
-/*
- See LICENSE folder for this sample’s licensing information.
- 
- Abstract:
- The paging view to switch between controls, metrics, and now playing views.
- */
-
 import SwiftUI
 import WatchKit
+import ComposableArchitecture
 
 struct SessionPagingView: View {
   @EnvironmentObject var workoutManager: WorkoutManager
   @Environment(\.isLuminanceReduced) var isLuminanceReduced
   @State private var selection: Tab = .metrics
+  
+  /// Child states
+  var controls = ControlsFeature.State(isWorkoutRunning: true)
+  var metrics = MetricsFeature.State()
   
   enum Tab {
     case controls, metrics, nowPlaying
@@ -19,18 +17,26 @@ struct SessionPagingView: View {
   
   var body: some View {
     TabView(selection: $selection) {
-      ControlsView()
-        .tag(Tab.controls)
-        .contentShape(Rectangle())
+      ControlsView(
+        store: StoreOf<ControlsFeature>(
+          initialState: controls,
+          reducer: { ControlsFeature() }
+        )
+      )
+      .tag(Tab.controls)
+      .contentShape(Rectangle())
       
-      MetricsView()
-        .tag(Tab.metrics)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-      
+      MetricsView(
+        store: StoreOf<MetricsFeature>(
+          initialState: metrics,
+          reducer: { MetricsFeature() }
+        )
+      )
+      .tag(Tab.metrics)
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
       
       NowPlayingView()
         .tag(Tab.nowPlaying)
-      
         .contentShape(Rectangle())
     }
     

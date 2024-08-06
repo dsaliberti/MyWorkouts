@@ -1,25 +1,26 @@
-/*
-See LICENSE folder for this sample’s licensing information.
-
-Abstract:
-The entry point into the app.
-*/
-
 import SwiftUI
+import ComposableArchitecture
 
 @main
 struct MyWorkoutsApp: App {
-    @StateObject private var workoutManager = WorkoutManager()
-
-    @SceneBuilder var body: some Scene {
-        WindowGroup {
-            NavigationView {
-                StartView()
-            }
-            .sheet(isPresented: $workoutManager.showingSummaryView) {
-                SummaryView()
-            }
-            .environmentObject(workoutManager)
+  @StateObject private var workoutManager = WorkoutManager()
+  
+  @SceneBuilder var body: some Scene {
+    WindowGroup {
+      NavigationView {
+        WithPerceptionTracking {
+          StartView(
+            store: StoreOf<StartFeature>(
+              initialState: StartFeature.State(), 
+              reducer: { StartFeature() }
+            )
+          )
         }
+      }
+      .sheet(isPresented: $workoutManager.showingSummaryView) {
+        SummaryView()
+      }
+      .environmentObject(workoutManager)
     }
+  }
 }

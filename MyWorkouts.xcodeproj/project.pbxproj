@@ -3,10 +3,15 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9F65A9832C601D7100FD97DA /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 9F65A9822C601D7100FD97DA /* ComposableArchitecture */; };
+		9F65A9852C6024BE00FD97DA /* MetricsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F65A9842C6024BE00FD97DA /* MetricsFeature.swift */; };
+		9F65A9892C603C6F00FD97DA /* WorkoutClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F65A9882C603C6F00FD97DA /* WorkoutClient.swift */; };
+		9FC3AE422C61434E00F87274 /* StartFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC3AE412C61434E00F87274 /* StartFeature.swift */; };
+		9FC3AE452C62089600F87274 /* ControlsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC3AE442C62089600F87274 /* ControlsFeature.swift */; };
 		E0CF93A22661A76300F7CED2 /* MyWorkouts WatchKit App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = E0CF93A12661A76300F7CED2 /* MyWorkouts WatchKit App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E0CF93A72661A76400F7CED2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E0CF93A62661A76400F7CED2 /* Assets.xcassets */; };
 		E0CF93B52661A76500F7CED2 /* MyWorkoutsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0CF93B42661A76500F7CED2 /* MyWorkoutsApp.swift */; };
@@ -50,6 +55,10 @@
 
 /* Begin PBXFileReference section */
 		9CCDDFA02FD1E157086EAD25 /* SampleCode.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = SampleCode.xcconfig; path = Configuration/SampleCode.xcconfig; sourceTree = "<group>"; };
+		9F65A9842C6024BE00FD97DA /* MetricsFeature.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = MetricsFeature.swift; sourceTree = "<group>"; tabWidth = 2; };
+		9F65A9882C603C6F00FD97DA /* WorkoutClient.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = WorkoutClient.swift; sourceTree = "<group>"; tabWidth = 2; };
+		9FC3AE412C61434E00F87274 /* StartFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartFeature.swift; sourceTree = "<group>"; };
+		9FC3AE442C62089600F87274 /* ControlsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsFeature.swift; sourceTree = "<group>"; };
 		B97863FA9DADB69A3D7E0241 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		E08DF6C32661BF0600EB0963 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E0CF939D2661A76300F7CED2 /* MyWorkouts.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyWorkouts.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -70,7 +79,7 @@
 		E0DCA6282661B3CD00496154 /* StartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StartView.swift; sourceTree = "<group>"; };
 		E0DCA6292661B3CD00496154 /* ElapsedTimeView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ElapsedTimeView.swift; sourceTree = "<group>"; };
 		E0DCA62A2661B3CD00496154 /* SessionPagingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionPagingView.swift; sourceTree = "<group>"; };
-		E0DCA62B2661B3CD00496154 /* MetricsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetricsView.swift; sourceTree = "<group>"; };
+		E0DCA62B2661B3CD00496154 /* MetricsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = MetricsView.swift; sourceTree = "<group>"; tabWidth = 2; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +87,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9F65A9832C601D7100FD97DA /* ComposableArchitecture in Frameworks */,
 				E0DCA6202661B27D00496154 /* HealthKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -93,6 +103,32 @@
 			name = Configuration;
 			sourceTree = "<group>";
 		};
+		9F65A9862C603C1B00FD97DA /* Metrics */ = {
+			isa = PBXGroup;
+			children = (
+				E0DCA62B2661B3CD00496154 /* MetricsView.swift */,
+				9F65A9842C6024BE00FD97DA /* MetricsFeature.swift */,
+			);
+			path = Metrics;
+			sourceTree = "<group>";
+		};
+		9F65A9872C603C5900FD97DA /* Clients */ = {
+			isa = PBXGroup;
+			children = (
+				9F65A9882C603C6F00FD97DA /* WorkoutClient.swift */,
+			);
+			path = Clients;
+			sourceTree = "<group>";
+		};
+		9FC3AE432C62086A00F87274 /* Start */ = {
+			isa = PBXGroup;
+			children = (
+				E0DCA6282661B3CD00496154 /* StartView.swift */,
+				9FC3AE412C61434E00F87274 /* StartFeature.swift */,
+			);
+			path = Start;
+			sourceTree = "<group>";
+		};
 		E0CF93962661A76200F7CED2 = {
 			isa = PBXGroup;
 			children = (
@@ -104,9 +140,9 @@
 				2165A03224FF992354618B48 /* Configuration */,
 				F133DF038AAB08EBB1FDBBE0 /* LICENSE */,
 			);
-			indentWidth = 4;
+			indentWidth = 2;
 			sourceTree = "<group>";
-			tabWidth = 4;
+			tabWidth = 2;
 		};
 		E0CF939E2661A76300F7CED2 /* Products */ = {
 			isa = PBXGroup;
@@ -129,7 +165,10 @@
 		E0CF93B12661A76500F7CED2 /* MyWorkouts WatchKit Extension */ = {
 			isa = PBXGroup;
 			children = (
+				9F65A9872C603C5900FD97DA /* Clients */,
 				E0DCA6222661B39200496154 /* Controller */,
+				9FC3AE432C62086A00F87274 /* Start */,
+				9F65A9862C603C1B00FD97DA /* Metrics */,
 				E0DCA6212661B38900496154 /* Views */,
 				E0DCA61D2661B27D00496154 /* MyWorkouts WatchKit Extension.entitlements */,
 				E0CF93B42661A76500F7CED2 /* MyWorkoutsApp.swift */,
@@ -162,10 +201,9 @@
 			children = (
 				E0DCA6262661B3CD00496154 /* ActivityRingsView.swift */,
 				E0DCA6252661B3CD00496154 /* ControlsView.swift */,
+				9FC3AE442C62089600F87274 /* ControlsFeature.swift */,
 				E0DCA6292661B3CD00496154 /* ElapsedTimeView.swift */,
-				E0DCA62B2661B3CD00496154 /* MetricsView.swift */,
 				E0DCA62A2661B3CD00496154 /* SessionPagingView.swift */,
-				E0DCA6282661B3CD00496154 /* StartView.swift */,
 				E0DCA6272661B3CD00496154 /* SummaryView.swift */,
 			);
 			path = Views;
@@ -220,6 +258,9 @@
 			dependencies = (
 			);
 			name = "MyWorkouts WatchKit App";
+			packageProductDependencies = (
+				9F65A9822C601D7100FD97DA /* ComposableArchitecture */,
+			);
 			productName = "MyWorkouts WatchKit App";
 			productReference = E0CF93A12661A76300F7CED2 /* MyWorkouts WatchKit App.app */;
 			productType = "com.apple.product-type.application";
@@ -251,6 +292,9 @@
 				Base,
 			);
 			mainGroup = E0CF93962661A76200F7CED2;
+			packageReferences = (
+				9F65A9812C601D7100FD97DA /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+			);
 			productRefGroup = E0CF939E2661A76300F7CED2 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -286,13 +330,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9FC3AE452C62089600F87274 /* ControlsFeature.swift in Sources */,
 				E0DCA6302661B3CD00496154 /* ElapsedTimeView.swift in Sources */,
 				E0DCA62C2661B3CD00496154 /* ControlsView.swift in Sources */,
+				9F65A9852C6024BE00FD97DA /* MetricsFeature.swift in Sources */,
 				E0CF93B52661A76500F7CED2 /* MyWorkoutsApp.swift in Sources */,
 				E0CF93B72661A76500F7CED2 /* ComplicationController.swift in Sources */,
 				E0DCA62D2661B3CD00496154 /* ActivityRingsView.swift in Sources */,
 				E0DCA6242661B3A800496154 /* WorkoutManager.swift in Sources */,
 				E0DCA6322661B3CD00496154 /* MetricsView.swift in Sources */,
+				9F65A9892C603C6F00FD97DA /* WorkoutClient.swift in Sources */,
+				9FC3AE422C61434E00F87274 /* StartFeature.swift in Sources */,
 				E0DCA62E2661B3CD00496154 /* SummaryView.swift in Sources */,
 				E0DCA62F2661B3CD00496154 /* StartView.swift in Sources */,
 				E0DCA6312661B3CD00496154 /* SessionPagingView.swift in Sources */,
@@ -449,7 +497,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 8.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Debug;
 		};
@@ -476,7 +524,7 @@
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 8.0;
+				WATCHOS_DEPLOYMENT_TARGET = 9.0;
 			};
 			name = Release;
 		};
@@ -543,6 +591,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9F65A9812C601D7100FD97DA /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture";
+			requirement = {
+				kind = exactVersion;
+				version = 1.12.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9F65A9822C601D7100FD97DA /* ComposableArchitecture */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9F65A9812C601D7100FD97DA /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
+			productName = ComposableArchitecture;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E0CF93972661A76300F7CED2 /* Project object */;
 }
