@@ -30,8 +30,12 @@ struct ControlsFeature {
         }
         
       case .didTapToggleWorkout:
-        return .run { _ in
-          await workoutClient.togglePause()
+        return .run { [isRunning = state.isWorkoutRunning] _ in
+          if isRunning {
+            await workoutClient.pause()
+          } else {
+            await workoutClient.resume()
+          }
         }
       }
     }

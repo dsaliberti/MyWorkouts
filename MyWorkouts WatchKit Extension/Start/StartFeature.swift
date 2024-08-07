@@ -40,14 +40,19 @@ struct StartFeature {
         return .run { send in
           await workoutClient.startWorkout(selectedType)
           
-          for await workoutStates in workoutClient.observeWorkoutState() {
-            await send(.workoutStateChanged(workoutStates))
-          }
+//          for await delegateEvents in workoutClient.delegate() {
+//            
+//            switch delegateEvents {
+//            case let .workoutSessionDidChangeStateTo(state: state):
+//              await send(.workoutStateChanged(state))
+//            default: break
+//            }
+//          }
         }
-        .cancellable(id: CancellationID.observations, cancelInFlight: true)
+//        .cancellable(id: CancellationID.observations, cancelInFlight: true)
         
       case .workoutStateChanged(let newState):
-        print("~> workoutStateChanged", newState)
+        print("~> workoutStateChanged", newState.name)
         return .none
 
       case .workoutUpdated(let stats):

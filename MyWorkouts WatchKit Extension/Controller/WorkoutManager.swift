@@ -149,8 +149,8 @@ class WorkoutManager: NSObject, ObservableObject {
       
       self.update(
         Statistics(
-          startDate: self.workoutStartedAt ?? Date(),
-          elapsedTime: Double(self.builder?.elapsedTime ?? 0.0),
+          //startDate: self.workoutStartedAt ?? Date(),
+          //elapsedTime: Double(self.builder?.elapsedTime ?? 0.0),
           averageHeartRate: self.averageHeartRate,
           heartRate: self.heartRate,
           activeEnergy: self.activeEnergy,

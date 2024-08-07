@@ -9,7 +9,7 @@ struct SessionPagingView: View {
   
   /// Child states
   var controls = ControlsFeature.State(isWorkoutRunning: true)
-  var metrics = MetricsFeature.State()
+  var metrics = MetricsFeature.State(startDate: Date())
   
   enum Tab {
     case controls, metrics, nowPlaying

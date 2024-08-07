@@ -10,8 +10,8 @@ struct MetricsFeature {
   @ObservableState
   struct State: Equatable {
     var statistics: Statistics = Statistics(
-      startDate: Date(),
-      elapsedTime: 0,
+//      startDate: Date(),
+//      elapsedTime: 0,
       averageHeartRate: 0,
       heartRate: 0,
       activeEnergy: 0,
@@ -27,7 +27,7 @@ struct MetricsFeature {
     var paceAverage: String = "-"
     var cadence: String = "-"
     
-    var startDate: Date? = nil
+    var startDate: Date
     var isPaused: Bool = false
   }
   
@@ -44,14 +44,26 @@ struct MetricsFeature {
     switch action {
     case .task:
       print("task")
-      formatData(state: &state)
+//      formatData(state: &state)
       
-      return .concatenate(
+//      return .none
+      
+       return
+        .concatenate(
         .cancel(id: CancellationID.observations), 
           .run { send in
-            for await stats in workoutClient.observeStatistics() {
-              print("stats updated on task")
-              await send(.workoutUpdated(stats))
+            for await delegateEvents in workoutClient.delegate(workoutType: .running) {
+              print("MetricsFeature updated statistics", delegateEvents)
+              
+              switch delegateEvents {
+              case let .workoutBuilderDidCollectStatistics(statistics: statistics):
+                
+                if statistics.distance != 0 {                
+                  await send(.workoutUpdated(statistics))
+                }
+              default: break
+              }
+              
             }
           }
           .cancellable(id: CancellationID.observations, cancelInFlight: true)
@@ -66,11 +78,11 @@ struct MetricsFeature {
   }
   
   func formatData(state: inout State) {
-    print("formatData")
-    let duration = Duration.seconds(state.statistics.elapsedTime)
-    state.elapsedTime = duration.formatted(.time(pattern: .minuteSecond(padMinuteToLength: 2)))
+//    print("formatData")
+//    let duration = Duration.seconds(state.statistics.elapsedTime)
+//    state.elapsedTime = duration.formatted(.time(pattern: .minuteSecond(padMinuteToLength: 2)))
     
-    state.startDate = state.statistics.startDate
+//    state.startDate = state.statistics.startDate
     
     state.energy = Measurement(value: max(0, state.statistics.activeEnergy), unit: UnitEnergy.kilocalories)
       .formatted(
@@ -103,16 +115,16 @@ struct MetricsFeature {
     
     state.paceSplit = "00:00/Km"
     
-    let pace: Double = (state.statistics.distance > 0)
-    ? Double(state.statistics.elapsedTime) / state.statistics.distance
-    : Double(0)
-    
-    state.paceAverage = Duration
-      .seconds(pace)
-      .formatted(.time(pattern: .minuteSecond(padMinuteToLength: 2)))
-      .appending("/Km")
-
-    let minutes = Int(state.statistics.elapsedTime / 60)
-    state.cadence = String(format: "%d steps/min", (state.statistics.steps/max(1,minutes)))
+//    let pace: Double = (state.statistics.distance > 0)
+//    ? Double(state.statistics.elapsedTime) / state.statistics.distance
+//    : Double(0)
+//    
+//    state.paceAverage = Duration
+//      .seconds(pace)
+//      .formatted(.time(pattern: .minuteSecond(padMinuteToLength: 2)))
+//      .appending("/Km")
+//
+//    let minutes = Int(state.statistics.elapsedTime / 60)
+//    state.cadence = String(format: "%d steps/min", (state.statistics.steps/max(1,minutes)))
   }
 }
