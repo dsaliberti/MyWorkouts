@@ -60,10 +60,10 @@ class WorkoutManager: NSObject, ObservableObject {
     session?.startActivity(with: startDate)
     builder?.beginCollection(withStart: startDate) { (success, error) in
       // The workout has started.
-      print("workoutManager: builder started", success, error)
+      print("workoutManager: builder started", success, error.debugDescription)
     }
     
-    print("workoutManager: session / delegate", session, session?.delegate)
+    print("workoutManager: session / delegate", session.debugDescription, session?.delegate.debugDescription)
     
   }
   

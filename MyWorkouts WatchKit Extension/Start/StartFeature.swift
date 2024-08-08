@@ -11,10 +11,12 @@ struct StartFeature {
   
   @ObservableState
   struct State {
-    
     let workoutTypes: [HKWorkoutActivityType] = [.cycling, .running, .walking]
     
-    var selectedWorkout: HKWorkoutActivityType? = nil
+    // Child state
+    @Presents var session: SessionPagingFeature.State? = nil
+    
+    
   }
   
   enum Action {
@@ -22,24 +24,38 @@ struct StartFeature {
     case isSelectedWorkoutChanged(HKWorkoutActivityType?)
     case workoutStateChanged(HKWorkoutSessionState)
     case workoutUpdated(Statistics)
+    case session(PresentationAction<SessionPagingFeature.Action>)
   }
   
   var body: some ReducerOf<Self> {
-//    BindingReducer()
-    Reduce { state, action in
-      switch action {
+    Reduce(self.core)
+    .ifLet(
+      \.$session, 
+       action: \.session
+    ) { 
+      SessionPagingFeature()
+    }
+  }
+  
+  func core(state: inout State, action: Action) -> Effect<Action> {
+    switch action {
+      
+    case .task:
+      return .none
+      
+    case let .isSelectedWorkoutChanged(selectedType):
+      
+      guard let selectedType else { return .none }
+      
+      // presents Session
+      state.session = SessionPagingFeature.State(selectedWorkout: selectedType)
+      
+      return .none
+//        guard let selectedType else { return .none }
+//        
+//        return .run { send in
+//          await workoutClient.startWorkout(selectedType)
         
-      case .task:
-        return .none
-        
-      case let .isSelectedWorkoutChanged(selectedType):
-        state.selectedWorkout = selectedType
-        
-        guard let selectedType else { return .none }
-        
-        return .run { send in
-          await workoutClient.startWorkout(selectedType)
-          
 //          for await delegateEvents in workoutClient.delegate() {
 //            
 //            switch delegateEvents {
@@ -48,17 +64,19 @@ struct StartFeature {
 //            default: break
 //            }
 //          }
-        }
+//        }
 //        .cancellable(id: CancellationID.observations, cancelInFlight: true)
-        
-      case .workoutStateChanged(let newState):
-        print("~> workoutStateChanged", newState.name)
-        return .none
+      
+    case .workoutStateChanged(let newState):
+      print("~> workoutStateChanged", newState.name)
+      return .none
 
-      case .workoutUpdated(let stats):
-        print("~> workoutUpdated", stats)
-        return .none
-      }
+    case .workoutUpdated(let stats):
+      print("~> workoutUpdated", stats)
+      return .none
+      
+    case .session:
+      return .none
     }
   }
 }

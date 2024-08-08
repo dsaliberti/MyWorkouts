@@ -5,23 +5,17 @@ import HealthKit
 struct WorkoutClient {
   var startWorkout: @Sendable (_ workoutType: HKWorkoutActivityType) async -> Void
   var delegate: @Sendable (_ workoutType: HKWorkoutActivityType) -> AsyncStream<DelegateEvent> = { _ in .finished }
-//  var startObserveWorkout: @Sendable (_ workoutType: HKWorkoutActivityType) -> AsyncStream<DelegateEvent> = { _ in .finished }
-  //var observeWorkoutState: () -> AsyncStream<HKWorkoutSessionState>
-  //var observeStatistics: () -> AsyncStream<Statistics>
-  //  var observeState: () -> AsyncStream<HKWorkoutSessionState>
   //  var requestAuthorization: () async -> Void
   var pause: () async -> Void
-  //  var pause: () async -> Void
   var resume: @Sendable () async -> Void
   var endWorkout: @Sendable () async -> Void
-  //  var queryStepCount: () async -> Void
-  //  var resetWorkout: () async -> Void
+  var finishWorkout: @Sendable () async throws -> HKWorkout?
   
   @CasePathable
   enum DelegateEvent {
     case workoutSessionDidChangeStateTo(state: HKWorkoutSessionState)
     case workoutSessionDidFailWithError(error: Error)
-    case workoutBuilderDidCollectStatistics(statistics: Statistics)
+    case workoutBuilderDidCollectStatistics(StatisticsField)
   }
 }
 
@@ -33,7 +27,6 @@ extension WorkoutClient: DependencyKey {
   static var builder: HKLiveWorkoutBuilder?
   
   static func live() -> Self {
-    
     
     return Self.init(
       startWorkout: { workoutType in
@@ -70,12 +63,6 @@ extension WorkoutClient: DependencyKey {
       delegate: { workoutType in
         
         AsyncStream { continuation in
-          
-          guard session?.delegate == nil else {
-            continuation.finish()
-            return
-          }
-          
           let configuration = HKWorkoutConfiguration()
           configuration.activityType = workoutType
           configuration.locationType = .outdoor
@@ -103,7 +90,7 @@ extension WorkoutClient: DependencyKey {
           // WorkoutBuilder
           builder?.delegate = delegate
           
-          print("WorkoutClient delegates set")
+          print("WorkoutClient delegates set", session)
           
           continuation.onTermination = { _ in
             _ = delegate
@@ -113,51 +100,9 @@ extension WorkoutClient: DependencyKey {
           let startDate = Date()
           session?.startActivity(with: startDate)
           
-          Task {
-            try? await builder?.beginCollection(at: startDate)
-          }
+          builder?.beginCollection(withStart: startDate, completion: { _,error in print(error) })
         }
-      }, 
-//      startObserveWorkout: { workoutType in
-//        AsyncStream { continuation in
-////          print("workoutClient: startWorkout", workoutType)
-//          let configuration = HKWorkoutConfiguration()
-//          configuration.activityType = workoutType
-//          configuration.locationType = .outdoor
-//          
-//          // Create the session and obtain the workout builder.
-//          do {
-//            session = try HKWorkoutSession(healthStore: healthStore, configuration: configuration)
-//            builder = session?.associatedWorkoutBuilder()
-//          } catch let error {
-//            print("workoutClient: catch", error)
-//            return
-//          }
-//          
-//          // Set the workout builder's data source.
-//          builder?.dataSource = HKLiveWorkoutDataSource(
-//            healthStore: healthStore,
-//            workoutConfiguration: configuration
-//          )
-//          
-//          let delegate = Delegate(continuation: continuation)
-//          // Setup session and builder.
-//          session?.delegate = delegate
-//          // WorkoutBuilder
-//          builder?.delegate = delegate
-//          
-//          print("WorkoutClient delegates set")
-//          
-//          continuation.onTermination = { _ in
-//            _ = delegate
-//          }
-//          
-//          // Start the workout session and begin data collection.
-//          let startDate = Date()
-//          session?.startActivity(with: startDate)
-//          try? await builder?.beginCollection(at: startDate)
-//        }
-//      }, 
+      },
       pause: {
         session?.pause()
       },
@@ -165,7 +110,14 @@ extension WorkoutClient: DependencyKey {
         session?.resume()
       },
       endWorkout: {
+        print("endWorkout", session, Self.session?.state.name, session?.delegate)
         session?.end()
+        Task {
+          try? await builder?.endCollection(at: Date())
+        }
+      }, 
+      finishWorkout: {
+        try await builder?.finishWorkout()          
       }
     )
   }
@@ -194,7 +146,7 @@ extension WorkoutClient {
       from fromState: HKWorkoutSessionState,
       date: Date
     ) {
-      print("workoutClient delegate", toState)
+      print("workoutClient delegate", toState.name)
       self.continuation.yield(.workoutSessionDidChangeStateTo(state: toState))
     }
     
@@ -216,45 +168,32 @@ extension WorkoutClient {
         }
         
         if let statistics = workoutBuilder.statistics(for: quantityType) {
-          continuation.yield(.workoutBuilderDidCollectStatistics(statistics: convert(statistics)))
+          continuation.yield(.workoutBuilderDidCollectStatistics(convert(statistics)))
         }
         
         
       }
     }
     
-    fileprivate func convert(_ statistics: HKStatistics) -> Statistics {
-      
-      var heartRate: Double = 0
-      var averageHeartRate: Double = 0
-      var activeEnergy: Double = 0
-      var distance: Double = 0
+    fileprivate func convert(_ statistics: HKStatistics) -> StatisticsField {
       
       switch statistics.quantityType {
       case HKQuantityType.quantityType(forIdentifier: .heartRate):
         let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
-        heartRate = statistics.mostRecentQuantity()?.doubleValue(for: heartRateUnit) ?? 0
-        averageHeartRate = statistics.averageQuantity()?.doubleValue(for: heartRateUnit) ?? 0
+        return .heartRate(statistics.mostRecentQuantity()?.doubleValue(for: heartRateUnit) ?? 0)
+//        averageHeartRate = statistics.averageQuantity()?.doubleValue(for: heartRateUnit) ?? 0
       
       case HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned):
         let energyUnit = HKUnit.kilocalorie()
-        activeEnergy = statistics.sumQuantity()?.doubleValue(for: energyUnit) ?? 0
+        return .activeEnergy(statistics.sumQuantity()?.doubleValue(for: energyUnit) ?? 0)
       
       case HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning), HKQuantityType.quantityType(forIdentifier: .distanceCycling):
         let meterUnit = HKUnit.meter()
-        distance = statistics.sumQuantity()?.doubleValue(for: meterUnit) ?? 0
-      
+        return .distance(statistics.sumQuantity()?.doubleValue(for: meterUnit) ?? 0)
+        
       default:
-        break
+        return .steps(0)
       }
-      
-      return Statistics(
-        averageHeartRate: averageHeartRate,
-        heartRate: heartRate,
-        activeEnergy: activeEnergy,
-        distance: distance,
-        steps: 0
-      )
     }
   }
 }
@@ -266,6 +205,14 @@ extension DependencyValues {
   }
 }
 
+enum StatisticsField {
+  case averageHeartRate(Double)
+  case heartRate(Double)
+  case activeEnergy(Double)
+  case distance(Double)
+  case steps(Int)
+}
+
 struct Statistics: Equatable {
   var averageHeartRate: Double = 0
   var heartRate: Double = 0
@@ -274,49 +221,10 @@ struct Statistics: Equatable {
   var steps: Int = 0
 }
 
-
-
-
-
-
-
-//static func liveWorkoutManager() -> Self {
-//    
-//    let workoutManager = WorkoutManager()
-//    return Self(
-//      startWorkout: { workoutType in
-//        print("startWorkout")
-//        workoutManager.selectedWorkout = workoutType
-//      },
-//      observeWorkoutState: {
-//        AsyncStream { continuation in
-//          workoutManager.updateWorkoutState = {
-//            continuation.yield($0)
-//          }
-//        }
-//      },
-//      observeStatistics: {
-//        
-//        AsyncStream { continuation in
-//          
-//          workoutManager.update = { 
-//            continuation.yield($0)
-//          }
-//          
-//        }
-//      },
-//      togglePause: {
-//        workoutManager.togglePause()
-//      },
-//      endWorkout: {
-//        workoutManager.endWorkout()
-//      }
-//    )
-//  }
-
+// Debug helper
 extension HKWorkoutSessionState {
   var name: String {
-    switch self {
+    return switch self {
     case .notStarted:
       "notStarted"
     case .running:
@@ -329,6 +237,8 @@ extension HKWorkoutSessionState {
       "prepared"
     case .stopped:
       "stopped"
+    @unknown default:
+      "unknown"
     }
   }
 }

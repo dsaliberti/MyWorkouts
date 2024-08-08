@@ -43,46 +43,21 @@ struct MetricsFeature {
   func core(state: inout State, action: Action) -> Effect<Action> {
     switch action {
     case .task:
-      print("task")
-//      formatData(state: &state)
-      
-//      return .none
-      
-       return
-        .concatenate(
-        .cancel(id: CancellationID.observations), 
-          .run { send in
-            for await delegateEvents in workoutClient.delegate(workoutType: .running) {
-              print("MetricsFeature updated statistics", delegateEvents)
-              
-              switch delegateEvents {
-              case let .workoutBuilderDidCollectStatistics(statistics: statistics):
-                
-                if statistics.distance != 0 {                
-                  await send(.workoutUpdated(statistics))
-                }
-              default: break
-              }
-              
-            }
-          }
-          .cancellable(id: CancellationID.observations, cancelInFlight: true)
-      )
+      formatData(state: &state)
+      return .none
       
     case let .workoutUpdated(statistics):
-      print("workoutUpdated")
+      print("metrics workoutUpdated")
       state.statistics = statistics
       formatData(state: &state)
+      
       return .none
     }
   }
   
   func formatData(state: inout State) {
-//    print("formatData")
 //    let duration = Duration.seconds(state.statistics.elapsedTime)
 //    state.elapsedTime = duration.formatted(.time(pattern: .minuteSecond(padMinuteToLength: 2)))
-    
-//    state.startDate = state.statistics.startDate
     
     state.energy = Measurement(value: max(0, state.statistics.activeEnergy), unit: UnitEnergy.kilocalories)
       .formatted(

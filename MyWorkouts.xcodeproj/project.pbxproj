@@ -12,6 +12,7 @@
 		9F65A9892C603C6F00FD97DA /* WorkoutClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F65A9882C603C6F00FD97DA /* WorkoutClient.swift */; };
 		9FC3AE422C61434E00F87274 /* StartFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC3AE412C61434E00F87274 /* StartFeature.swift */; };
 		9FC3AE452C62089600F87274 /* ControlsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC3AE442C62089600F87274 /* ControlsFeature.swift */; };
+		9FDB08272C63E7BC0035A46E /* SessionPagingFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FDB08262C63E7BC0035A46E /* SessionPagingFeature.swift */; };
 		E0CF93A22661A76300F7CED2 /* MyWorkouts WatchKit App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = E0CF93A12661A76300F7CED2 /* MyWorkouts WatchKit App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		E0CF93A72661A76400F7CED2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E0CF93A62661A76400F7CED2 /* Assets.xcassets */; };
 		E0CF93B52661A76500F7CED2 /* MyWorkoutsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0CF93B42661A76500F7CED2 /* MyWorkoutsApp.swift */; };
@@ -59,6 +60,7 @@
 		9F65A9882C603C6F00FD97DA /* WorkoutClient.swift */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.swift; path = WorkoutClient.swift; sourceTree = "<group>"; tabWidth = 2; };
 		9FC3AE412C61434E00F87274 /* StartFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartFeature.swift; sourceTree = "<group>"; };
 		9FC3AE442C62089600F87274 /* ControlsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsFeature.swift; sourceTree = "<group>"; };
+		9FDB08262C63E7BC0035A46E /* SessionPagingFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionPagingFeature.swift; sourceTree = "<group>"; };
 		B97863FA9DADB69A3D7E0241 /* LICENSE.txt */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		E08DF6C32661BF0600EB0963 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		E0CF939D2661A76300F7CED2 /* MyWorkouts.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyWorkouts.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -129,6 +131,24 @@
 			path = Start;
 			sourceTree = "<group>";
 		};
+		9FDB08282C63F8CB0035A46E /* SessionPaging */ = {
+			isa = PBXGroup;
+			children = (
+				E0DCA62A2661B3CD00496154 /* SessionPagingView.swift */,
+				9FDB08262C63E7BC0035A46E /* SessionPagingFeature.swift */,
+			);
+			path = SessionPaging;
+			sourceTree = "<group>";
+		};
+		9FDB08292C63F8F70035A46E /* Controls */ = {
+			isa = PBXGroup;
+			children = (
+				E0DCA6252661B3CD00496154 /* ControlsView.swift */,
+				9FC3AE442C62089600F87274 /* ControlsFeature.swift */,
+			);
+			path = Controls;
+			sourceTree = "<group>";
+		};
 		E0CF93962661A76200F7CED2 = {
 			isa = PBXGroup;
 			children = (
@@ -168,7 +188,9 @@
 				9F65A9872C603C5900FD97DA /* Clients */,
 				E0DCA6222661B39200496154 /* Controller */,
 				9FC3AE432C62086A00F87274 /* Start */,
+				9FDB08282C63F8CB0035A46E /* SessionPaging */,
 				9F65A9862C603C1B00FD97DA /* Metrics */,
+				9FDB08292C63F8F70035A46E /* Controls */,
 				E0DCA6212661B38900496154 /* Views */,
 				E0DCA61D2661B27D00496154 /* MyWorkouts WatchKit Extension.entitlements */,
 				E0CF93B42661A76500F7CED2 /* MyWorkoutsApp.swift */,
@@ -200,10 +222,7 @@
 			isa = PBXGroup;
 			children = (
 				E0DCA6262661B3CD00496154 /* ActivityRingsView.swift */,
-				E0DCA6252661B3CD00496154 /* ControlsView.swift */,
-				9FC3AE442C62089600F87274 /* ControlsFeature.swift */,
 				E0DCA6292661B3CD00496154 /* ElapsedTimeView.swift */,
-				E0DCA62A2661B3CD00496154 /* SessionPagingView.swift */,
 				E0DCA6272661B3CD00496154 /* SummaryView.swift */,
 			);
 			path = Views;
@@ -330,6 +349,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9FDB08272C63E7BC0035A46E /* SessionPagingFeature.swift in Sources */,
 				9FC3AE452C62089600F87274 /* ControlsFeature.swift in Sources */,
 				E0DCA6302661B3CD00496154 /* ElapsedTimeView.swift in Sources */,
 				E0DCA62C2661B3CD00496154 /* ControlsView.swift in Sources */,

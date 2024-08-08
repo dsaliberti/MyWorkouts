@@ -6,29 +6,26 @@ struct StartView: View {
   @Perception.Bindable var store: StoreOf<StartFeature>
   
   var body: some View {
-    
-    List(store.workoutTypes) { workoutType in
-      WithPerceptionTracking {
-        
-//        Button {
-//          store.send(.isSelectedWorkoutChanged(workoutType))
-//        } label: {
-//          Text(workoutType.name)
-//        }
-        
-        NavigationLink(
-          workoutType.name, 
-          destination: SessionPagingView(),
-          tag: workoutType, 
-          selection: $store.selectedWorkout.sending(\.isSelectedWorkoutChanged)
-        )
-        .padding(EdgeInsets(top: 15, leading: 5, bottom: 15, trailing: 5))
+    WithPerceptionTracking {
+      NavigationStack {
+        List(store.workoutTypes) { workoutType in
+          Button {
+            store.send(.isSelectedWorkoutChanged(workoutType))
+          } label: {
+            Text(workoutType.name)
+          }
+          .padding(EdgeInsets(top: 15, leading: 5, bottom: 15, trailing: 5))
+          .listStyle(.carousel)
+          .navigationBarTitle("Workouts")
+          //    .onAppear {
+          //      workoutManager.requestAuthorization()
+          //    }
+        }
+        .navigationDestination(item: $store.scope(state: \.session, action: \.session)) { store in 
+          SessionPagingView(store: store)
+        }
       }
-      .listStyle(.carousel)
-      .navigationBarTitle("Workouts")
-      //    .onAppear {
-      //      workoutManager.requestAuthorization()
-      //    }
+      .navigationBarHidden(true)
     }
   }
 }

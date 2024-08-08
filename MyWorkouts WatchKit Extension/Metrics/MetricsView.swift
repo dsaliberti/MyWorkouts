@@ -10,7 +10,7 @@ struct MetricsView: View {
     WithPerceptionTracking {
       TimelineView(
         MetricsTimelineSchedule(
-          from: store.startDate ?? Date(),
+          from: store.startDate,
           isPaused: store.isPaused
         )
       ) { context in

@@ -8,7 +8,7 @@ struct ControlsFeature {
   enum CancellationID { case observations }
   
   @ObservableState
-  struct State {
+  struct State: Equatable {
     var isWorkoutRunning: Bool
   }
   
@@ -16,6 +16,12 @@ struct ControlsFeature {
     case task
     case didTapEndWorkout
     case didTapToggleWorkout
+    case delegate(Delegate)
+    
+    enum Delegate {
+      case didTapEndWorkout
+      case didTapToggleWorkout
+    }
   }
   
   var body: some ReducerOf<Self> {
@@ -25,9 +31,8 @@ struct ControlsFeature {
         return .none
         
       case .didTapEndWorkout:
-        return .run { _ in
-          await workoutClient.endWorkout()
-        }
+        print("controls didTapEndWorkout")
+        return .send(.delegate(.didTapEndWorkout))
         
       case .didTapToggleWorkout:
         return .run { [isRunning = state.isWorkoutRunning] _ in
@@ -37,6 +42,10 @@ struct ControlsFeature {
             await workoutClient.resume()
           }
         }
+        
+        /// Delegate should be always handled by the parent domain
+      case .delegate:
+        return .none
       }
     }
   }
