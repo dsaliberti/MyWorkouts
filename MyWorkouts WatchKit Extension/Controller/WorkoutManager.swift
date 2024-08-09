@@ -81,6 +81,7 @@ class WorkoutManager: NSObject, ObservableObject {
       HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)!,
       HKQuantityType.quantityType(forIdentifier: .distanceCycling)!,
       HKQuantityType.quantityType(forIdentifier: .stepCount)!,
+      HKQuantityType.quantityType(forIdentifier: .runningSpeed)!,
       HKObjectType.activitySummaryType()
     ]
     
@@ -154,8 +155,7 @@ class WorkoutManager: NSObject, ObservableObject {
           averageHeartRate: self.averageHeartRate,
           heartRate: self.heartRate,
           activeEnergy: self.activeEnergy,
-          distance: self.distance,
-          steps: self.steps
+          distance: self.distance
         )
       )
     }

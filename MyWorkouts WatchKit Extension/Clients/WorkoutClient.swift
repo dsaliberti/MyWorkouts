@@ -10,6 +10,8 @@ struct WorkoutClient {
   var resume: @Sendable () async -> Void
   var endWorkout: @Sendable () async -> Void
   var finishWorkout: @Sendable () async throws -> HKWorkout?
+  var queryStepsCount: @Sendable (_ startDate: Date) async throws -> Int
+  var queryRunningSpeed: @Sendable (_ startDate: Date) async throws -> Double
   
   @CasePathable
   enum DelegateEvent {
@@ -66,6 +68,7 @@ extension WorkoutClient: DependencyKey {
           let configuration = HKWorkoutConfiguration()
           configuration.activityType = workoutType
           configuration.locationType = .outdoor
+          configuration.lapLength = HKQuantity.init(unit: HKUnit.meter(), doubleValue: 4.0)
           
           // Create the session and obtain the workout builder.
           do {
@@ -118,8 +121,63 @@ extension WorkoutClient: DependencyKey {
       }, 
       finishWorkout: {
         try await builder?.finishWorkout()          
+      },
+      queryStepsCount: { startDate in
+        await querySteps(startDate: startDate)
+      },
+      queryRunningSpeed: { startDate in
+        await queryRunningSpeed(startDate: startDate)
       }
     )
+  }
+  
+  @Sendable static func queryRunningSpeed(startDate: Date) async -> Double {
+    let speedType = HKQuantityType(.runningSpeed)
+    let predicate = HKQuery.predicateForSamples(withStart: startDate, end: Date())
+    let query = HKStatisticsQuery(quantityType: speedType, quantitySamplePredicate: predicate, options: [.discreteAverage]) { _, result, error in 
+      guard let quantity = result, error == nil  else {
+        print("error fetching running speed")
+        return
+      }
+      
+      let speedQuantity = quantity.averageQuantity()
+      let speedUnit = HKUnit.meter().unitDivided(by: HKUnit.second())
+      
+      if let speedValue = speedQuantity?.doubleValue(for: speedUnit) {
+        print("Average speed=\(speedValue) m/s")
+      }
+    }
+    
+    healthStore.execute(query)
+    
+    return 0
+  }
+  
+  @Sendable static func querySteps(startDate: Date) async -> Int {
+    
+    await withCheckedContinuation { continuation in
+      let stepCountType = HKQuantityType.quantityType(forIdentifier: .stepCount)!
+      let endDate = Date()
+      let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictEndDate)
+      
+      let query = HKStatisticsQuery(quantityType: stepCountType, quantitySamplePredicate: predicate, options: .cumulativeSum) { _, result, error in
+        if let error = error {
+          print("no steps: \(error.localizedDescription)")
+          
+          continuation.resume(returning: 0)
+          return
+        }
+        
+        if let result = result, let sum = result.sumQuantity() {
+          let stepCount = sum.doubleValue(for: HKUnit.count())
+          
+          continuation.resume(with: .success(Int(stepCount))) 
+          
+        }
+      }
+      
+      healthStore.execute(query)
+    }
   }
 }
 
@@ -161,27 +219,40 @@ extension WorkoutClient {
      */
     func workoutBuilderDidCollectEvent(_ workoutBuilder: HKLiveWorkoutBuilder) { }
     
-    func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
-      for type in collectedTypes {
-        guard let quantityType = type as? HKQuantityType else {
-          return // Nothing to do.
-        }
-        
-        if let statistics = workoutBuilder.statistics(for: quantityType) {
-          continuation.yield(.workoutBuilderDidCollectStatistics(convert(statistics)))
-        }
-        
-        
+    func workoutSession(_ workoutSession: HKWorkoutSession, didGenerate event: HKWorkoutEvent) {
+      switch event.type {
+      case .lap:
+        print("~> lap HKMetadataKeyLapLength",event.metadata?[HKMetadataKeyLapLength])
+        print("~> lap HKMetadataKeyAverageSpeed",event.metadata?[HKMetadataKeyAverageSpeed])
+        print("~> lap HKMetadataKeySessionEstimate",event.metadata?[HKMetadataKeySessionEstimate])
+      default: 
+        print("~> event", event.metadata)
       }
     }
     
-    fileprivate func convert(_ statistics: HKStatistics) -> StatisticsField {
+    func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
+      
+      for type in collectedTypes {
+        
+        print("~> type", type)
+        
+        if let quantityType = type as? HKQuantityType,
+           let statistics = workoutBuilder.statistics(for: quantityType),
+           let convertedStatistics = convert(statistics) {
+          
+          continuation.yield(.workoutBuilderDidCollectStatistics(convertedStatistics))
+          
+        }
+      }
+    }
+    
+    fileprivate func convert(_ statistics: HKStatistics) -> StatisticsField? {
       
       switch statistics.quantityType {
+        
       case HKQuantityType.quantityType(forIdentifier: .heartRate):
         let heartRateUnit = HKUnit.count().unitDivided(by: HKUnit.minute())
         return .heartRate(statistics.mostRecentQuantity()?.doubleValue(for: heartRateUnit) ?? 0)
-//        averageHeartRate = statistics.averageQuantity()?.doubleValue(for: heartRateUnit) ?? 0
       
       case HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned):
         let energyUnit = HKUnit.kilocalorie()
@@ -191,8 +262,7 @@ extension WorkoutClient {
         let meterUnit = HKUnit.meter()
         return .distance(statistics.sumQuantity()?.doubleValue(for: meterUnit) ?? 0)
         
-      default:
-        return .steps(0)
+      default: return nil
       }
     }
   }
@@ -211,6 +281,7 @@ enum StatisticsField {
   case activeEnergy(Double)
   case distance(Double)
   case steps(Int)
+  case splitPace(Double)
 }
 
 struct Statistics: Equatable {
@@ -219,6 +290,7 @@ struct Statistics: Equatable {
   var activeEnergy: Double = 0
   var distance: Double = 0
   var steps: Int = 0
+  var splitPace: Double = 0
 }
 
 // Debug helper

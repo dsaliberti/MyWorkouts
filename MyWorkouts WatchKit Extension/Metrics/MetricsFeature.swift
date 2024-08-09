@@ -9,6 +9,30 @@ struct MetricsFeature {
   
   @ObservableState
   struct State: Equatable {
+    
+    // Components
+    enum MetricsComponent: Hashable {
+      case energy
+      case heartRate
+      case distance
+      case paceSplit
+      case paceAverage
+      case cadence
+    }
+    
+    // Confirguration
+    var configuration: [MetricsComponent] {
+      [
+        .energy,
+        .heartRate,
+        .distance,
+        .paceSplit,
+        .paceAverage,
+        .cadence
+      ]
+    }
+    
+    // Data to display
     var statistics: Statistics = Statistics(
 //      startDate: Date(),
 //      elapsedTime: 0,
@@ -19,6 +43,7 @@ struct MetricsFeature {
       steps: 0
     )
     
+    var elapsedTimeSeconds: Int = 0
     var elapsedTime: String = "-"
     var energy: String = "-"
     var heartRate: String = "-"
@@ -29,6 +54,8 @@ struct MetricsFeature {
     
     var startDate: Date
     var isPaused: Bool = false
+    
+    
   }
   
   enum Action {
@@ -56,8 +83,6 @@ struct MetricsFeature {
   }
   
   func formatData(state: inout State) {
-//    let duration = Duration.seconds(state.statistics.elapsedTime)
-//    state.elapsedTime = duration.formatted(.time(pattern: .minuteSecond(padMinuteToLength: 2)))
     
     state.energy = Measurement(value: max(0, state.statistics.activeEnergy), unit: UnitEnergy.kilocalories)
       .formatted(
@@ -88,18 +113,32 @@ struct MetricsFeature {
       )
     )
     
-    state.paceSplit = "00:00/Km"
+    state.paceSplit = Duration
+      .seconds(state.statistics.splitPace)
+      .formatted(.time(pattern: .minuteSecond(padMinuteToLength: 2)))
+      .appending("/Km cur pace")
     
-//    let pace: Double = (state.statistics.distance > 0)
-//    ? Double(state.statistics.elapsedTime) / state.statistics.distance
-//    : Double(0)
-//    
-//    state.paceAverage = Duration
-//      .seconds(pace)
-//      .formatted(.time(pattern: .minuteSecond(padMinuteToLength: 2)))
-//      .appending("/Km")
-//
-//    let minutes = Int(state.statistics.elapsedTime / 60)
-//    state.cadence = String(format: "%d steps/min", (state.statistics.steps/max(1,minutes)))
+    let km = state.statistics.distance / 1000
+    print("km", km)
+    print("sec", state.elapsedTimeSeconds)
+    
+    let pace: Double = (state.statistics.distance > 0)
+    ? Double(state.elapsedTimeSeconds) / km
+    : Double(0)
+    
+    print("pace km", pace) 
+    
+    state.paceAverage = Duration
+      .seconds(pace)
+      .formatted(.time(pattern: .minuteSecond(padMinuteToLength: 2)))
+      .appending("/Km avg pace")
+    
+    let minutes = Int(state.elapsedTimeSeconds / 60)
+    
+    let cadence = minutes > 0
+    ? state.statistics.steps/minutes
+    : 0
+    
+    state.cadence = String(format: "%d steps/min", cadence)
   }
 }

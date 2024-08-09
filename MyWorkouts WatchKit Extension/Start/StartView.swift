@@ -3,7 +3,8 @@ import HealthKit
 import ComposableArchitecture
 
 struct StartView: View {
-  @Perception.Bindable var store: StoreOf<StartFeature>
+  @EnvironmentObject var workoutManager: WorkoutManager
+  @Bindable var store: StoreOf<StartFeature>
   
   var body: some View {
     WithPerceptionTracking {
@@ -17,9 +18,9 @@ struct StartView: View {
           .padding(EdgeInsets(top: 15, leading: 5, bottom: 15, trailing: 5))
           .listStyle(.carousel)
           .navigationBarTitle("Workouts")
-          //    .onAppear {
-          //      workoutManager.requestAuthorization()
-          //    }
+              .onAppear {
+                workoutManager.requestAuthorization()
+              }
         }
         .navigationDestination(item: $store.scope(state: \.session, action: \.session)) { store in 
           SessionPagingView(store: store)

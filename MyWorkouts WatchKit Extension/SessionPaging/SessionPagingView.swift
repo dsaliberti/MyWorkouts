@@ -6,7 +6,7 @@ struct SessionPagingView: View {
   @Environment(\.isLuminanceReduced) var isLuminanceReduced
   @State private var selection: Tab = .metrics
   
-  @Perception.Bindable var store: StoreOf<SessionPagingFeature>
+  @Bindable var store: StoreOf<SessionPagingFeature>
   
   enum Tab {
     case controls, metrics, nowPlaying
@@ -14,6 +14,7 @@ struct SessionPagingView: View {
   
   var body: some View {
     WithPerceptionTracking {
+      
       TabView(selection: $selection) {
         ControlsView(
           store: store.scope(

@@ -14,48 +14,57 @@ struct MetricsView: View {
           isPaused: store.isPaused
         )
       ) { context in
-        WithPerceptionTracking {
-          VStack(alignment: .leading, spacing: .zero) {
-            Text(store.elapsedTime)
-              .fontWeight(.semibold)
-              .font(.title2)
-              .foregroundStyle(.yellow)
-              .padding(.leading, 16)
-            
-            ScrollView {
-              VStack(alignment: .leading, spacing: .zero) {
+        
+        VStack(alignment: .leading, spacing: .zero) {
+          
+          ElapsedTimeView(elapsedTime: store.elapsedTime)
+            .fontWeight(.semibold)
+            .font(.title2)
+            .foregroundStyle(.yellow)
+            .padding(.leading, 16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+          
+          
+          ScrollView {
+            VStack(alignment: .leading, spacing: .zero) {
+              
+              ForEach(store.configuration, id:\.hashValue) { component in
                 
-                /// Energy `0 Kcal`
-                Text(store.energy)
+                let value: String = switch component {
+                case .energy:
+                  store.energy
+                  
+                case .heartRate:
+                  store.heartRate
+                  
+                case .distance:
+                  store.distance
+                  
+                case .paceSplit:
+                  store.paceSplit
+                  
+                case .paceAverage:
+                  store.paceAverage
+                  
+                case.cadence:
+                  store.cadence
+                  
+                }
                 
-                /// HR `0 BPM`
-                Text(store.heartRate)
-                
-                /// Distance 
-                Text(store.distance)
-                
-                /// Pace split `00:00/Km`
-                Text(store.paceSplit)
-                
-                /// Average Pace `00:00/Km`
-                Text(store.paceAverage)
-                
-                /// Cadence: number of steps per minute
-                Text(store.cadence)
-                
+                Text(value)
               }
-              .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-              .padding(.horizontal, 16)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-            
+            .padding(.horizontal, 16)
           }
-          .font(.system(.title3, design: .rounded).monospacedDigit().lowercaseSmallCaps())
           .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-          .padding(0)
-          .task {
-            store.send(.task)
-          }
+          
+        }
+        .font(.system(.title3, design: .rounded).monospacedDigit().lowercaseSmallCaps())
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .padding(0)
+        .task {
+          store.send(.task)
         }
       }
     }  
